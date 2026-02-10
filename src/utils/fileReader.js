@@ -3,6 +3,6 @@ export const readFileAsText = (file) => {
     const reader = new FileReader();
     reader.onload = (e) => resolve(e.target.result);
     reader.onerror = () => reject(new Error('Failed to read file'));
-    reader.readAsText(file);
+    reader.readAsDataURL(file);
   });
 };
