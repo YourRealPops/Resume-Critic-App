@@ -9,6 +9,7 @@ import RewriteSection from './components/RewriteSection';
 import Footer from './components/Footer';
 import { readFileAsText } from './utils/fileReader';
 import { analyzeResumeWithAI } from './services/resumeAnalyzer';
+import { waitForServer } from './services/serverHealth';
 
 function App() {
   const [file, setFile] = useState(null);
@@ -17,6 +18,7 @@ function App() {
   const [critique, setCritique] = useState(null);
   const [resumeFile, setResumeFile] = useState(null);
   const [mimeType, setMimeType] = useState(null);
+  const [isWakingUp, setIsWakingUp] = useState(false);
 
   const handleFileSelect = async (selectedFile) => {
     if (selectedFile.size > 5 * 1024 * 1024) {
@@ -37,17 +39,21 @@ function App() {
     setIsLoading(true);
     setError(null);
     try {
-      const fileText = await readFileAsText(selectedFile);
-      setResumeFile(fileText);           // store original base64 for rewriter
-      setMimeType(selectedFile.type);    // store mime type for rewriter
-      const parsedCritique = await analyzeResumeWithAI(fileText, selectedFile.type);
-      setCritique(parsedCritique);
-    } catch (err) {
-      setError(err.message || 'An error occurred while analyzing your resume.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      // Check if server is awake first
+    await waitForServer(() => setIsWakingUp(true));
+    setIsWakingUp(false); // server is awake, clear the message
+    const fileText = await readFileAsText(selectedFile);
+    setResumeFile(fileText);
+    setMimeType(selectedFile.type);
+    const parsedCritique = await analyzeResumeWithAI(fileText, selectedFile.type);
+    setCritique(parsedCritique);
+  } catch (err) {
+    setError(err.message || 'An error occurred while analyzing your resume.');
+  } finally {
+    setIsLoading(false);
+    setIsWakingUp(false);
+  }
+};
 
   const handleRemoveFile = () => {
     setFile(null);
@@ -71,7 +77,15 @@ function App() {
             <ResumePreview file={file} onRemove={handleRemoveFile} />
           )}
 
-          {isLoading && <LoadingSpinner />}
+         {isWakingUp && (
+          <div className="text-center py-8 space-y-3">
+          <div className="text-4xl animate-bounce">😴</div>
+          <p className="text-gray-600 font-medium">Waking up the server, please wait...</p>
+          <p className="text-gray-400 text-sm">This only happens after a period of inactivity and takes about 30 seconds.</p>
+           </div>
+          )}
+
+        {isLoading && !isWakingUp && <LoadingSpinner />}
 
           {error && (
             <ErrorMessage message={error} onDismiss={() => setError(null)} />
