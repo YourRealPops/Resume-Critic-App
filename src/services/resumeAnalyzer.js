@@ -1,4 +1,4 @@
-export const analyzeResumeWithAI = async (fileText) => {
+export const analyzeResumeWithAI = async (fileText, mimeType = "") => {
   // Backend API URL
   const API_URL = 'http://localhost:3000/api/analyze-resume';
 
@@ -8,7 +8,8 @@ export const analyzeResumeWithAI = async (fileText) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      resumeText: fileText
+      resumeText: fileText,
+      mimeType: mimeType
     })
   });
 
