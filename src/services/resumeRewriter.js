@@ -1,5 +1,5 @@
 export const rewriteResumeWithAI = async (resumeFile, mimeType, critique) => {
-  const response = await fetch('http://localhost:3000/api/rewrite-resume', {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/rewrite-resume`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ resumeFile, mimeType, critique })  // ← changed
@@ -58,7 +58,7 @@ export const downloadResume = async (rewrittenResume, format) => {
   }
 
   // For txt, doc, docx — fetch from backend
-  const response = await fetch('http://localhost:3000/api/download-resume', {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/download-resume`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ rewrittenResume, format })

@@ -1,6 +1,6 @@
 export const analyzeResumeWithAI = async (fileText, mimeType = "") => {
   // Backend API URL
-  const API_URL = 'http://localhost:3000/api/analyze-resume';
+const API_URL = `${import.meta.env.VITE_API_URL}/api/analyze-resume`;
 
   const response = await fetch(API_URL, {
     method: 'POST',
